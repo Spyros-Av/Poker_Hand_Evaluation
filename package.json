@@ -1,0 +1,25 @@
+{
+  "name": "handevaluation",
+  "version": "0.0.1",
+  "description": "",
+  "main": "poker.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage --colors"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Spyros-Av/handEvaluation.git"
+  },
+  "keywords": [],
+  "author": "Spyros Avramiotis",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Spyros-Av/handEvaluation/issues"
+  },
+  "homepage": "https://github.com/Spyros-Av/handEvaluation#readme",
+  "devDependencies": {
+    "jest": "^27.0.6"
+  }
+}
