@@ -92,10 +92,10 @@ const highCard = (rank) => {
   return highestCard;
 };
 
-const PlayerHand = function (handType, strength) {
-  this.hand = handType;
-  this.highCard = strength;
-}
+const PlayerHand = (hand, highCard) => ({
+  hand,
+  highCard,
+});
 
 function evaluate(hand) {
   const strength = highCard(rank);
@@ -154,7 +154,6 @@ function evaluate(hand) {
 
 const player1 = evaluate(hand);
 console.log(player1);
-
 
 
 
