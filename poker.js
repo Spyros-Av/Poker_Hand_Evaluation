@@ -200,4 +200,3 @@ console.log(evaluate(hand));
 
 
 
-
