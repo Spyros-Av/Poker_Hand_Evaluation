@@ -1,9 +1,10 @@
 const hand = [
   {
-    rank: '10',
-    suit: 'diamonds',
+    rank: "10",
+    suit: "diamonds",
   },
   {
+
     rank: 'Q',
     suit: 'diamonds',
   },
@@ -19,7 +20,6 @@ const hand = [
     rank: 'A',
     suit: 'diamonds',
   },
-
 ];
 
 const handType = {
@@ -35,28 +35,26 @@ const handType = {
   HIGH_CARD: 1,
 };
 
-const groupedHand = (hand) => hand.reduce(
-  (groups, group) => {
+const groupedHand = (hand) =>
+  hand.reduce((groups, group) => {
     if (!groups[group]) {
       groups[group] = 0;
     }
     groups[group]++;
     //console.log(groups);
     return groups;
-  },
-  {},
-);
+  }, {});
 
 const getValues = (groupedHand, maped) => {
-  let valueOfHand = (groupedHand(maped));
+  let valueOfHand = groupedHand(maped);
   return Object.values(valueOfHand);
 };
 
-const suit = hand.map(item => item.suit);
+const suit = hand.map((item) => item.suit);
 // console.log('----Suit----')
 // console.log(suit);
 
-const rank = hand.map(item => item.rank);
+const rank = hand.map((item) => item.rank);
 for (let i = 0; i < rank.length; i++) {
   (rank[i].toLowerCase() === 'j') ? rank[i] = 11 :
     (rank[i].toLowerCase() === 'q') ? rank[i] = 12 :
@@ -82,12 +80,12 @@ for (let i = 0; i < sorted.length - 1; i++) {
     isSorted[i] = -1;
     //console.log(isSorted)
   } else break;
-};
+}
 
 const highCard = (rank) => {
   let highestCard = 0;
   for (let elem of rank) {
-    highestCard < elem ? highestCard = Number(elem) : highestCard;
+    highestCard < elem ? (highestCard = Number(elem)) : highestCard;
   }
   return highestCard;
 };
@@ -196,7 +194,10 @@ const evaluate = (hand) => {
 
 console.log(evaluate(hand));
 
+const playerHand = evaluate(hand);
+console.log(playerHand);
 
-
-
-
+module.exports = {
+  evaluate,
+  handType,
+};
