@@ -1,91 +1,60 @@
-const hand = [
-  {
-    rank: "10",
-    suit: "diamonds",
-  },
-  {
-
-    rank: 'Q',
-    suit: 'diamonds',
-  },
-  {
-    rank: 'J',
-    suit: 'diamonds',
-  },
-  {
-    rank: 'K',
-    suit: 'diamonds',
-  },
-  {
-    rank: 'A',
-    suit: 'diamonds',
-  },
-];
-
 const handType = {
   ROYAL_FLUSH: 10,
   STRAIGHT_FLUSH: 9,
   FOUR_OF_A_KIND: 8,
-  FOUL_HOUSE: 7,
+  FULL_HOUSE: 7,
   FLUSH: 6,
   STRAIGHT: 5,
   THREE_OF_A_KIND: 4,
-  TWO_PAIRS: 3,
+  TWO_PAIR: 3,
   ONE_PAIR: 2,
   HIGH_CARD: 1,
 };
 
-const groupedHand = (hand) =>
-  hand.reduce((groups, group) => {
+const suit = (hand) => hand.map(item => item.suit);
+const rank = (hand) => hand.map(item => item.rank);
+const lettersToNumber = (suit, hand) => {
+  const rankArr = suit(hand);
+  for (let i = 0; i < rankArr.length; i++) {
+    (rankArr[i].toLowerCase() === 'j') ? rankArr[i] = 11 :
+      (rankArr[i].toLowerCase() === 'q') ? rankArr[i] = 12 :
+        (rankArr[i].toLowerCase() === 'k') ? rankArr[i] = 13 :
+          (rankArr[i].toLowerCase() === 'a') ? rankArr[i] = 14 : false;
+  }
+  return rankArr;
+}
+
+const getValues = (groupedHand, maped) => {
+  let valueOfHand = (groupedHand(maped));
+  return Object.values(valueOfHand);
+};
+
+const groupedHand = (hand) => hand.reduce(
+  (groups, group) => {
     if (!groups[group]) {
       groups[group] = 0;
     }
     groups[group]++;
-    //console.log(groups);
     return groups;
-  }, {});
+  },
+  {},
+);
 
-const getValues = (groupedHand, maped) => {
-  let valueOfHand = groupedHand(maped);
-  return Object.values(valueOfHand);
+const sorted = (rankArr) => {
+  rankArr.sort((a, b) => a - b)
+  return rankArr;
 };
-
-const suit = hand.map((item) => item.suit);
-// console.log('----Suit----')
-// console.log(suit);
-
-const rank = hand.map((item) => item.rank);
-for (let i = 0; i < rank.length; i++) {
-  (rank[i].toLowerCase() === 'j') ? rank[i] = 11 :
-    (rank[i].toLowerCase() === 'q') ? rank[i] = 12 :
-      (rank[i].toLowerCase() === 'k') ? rank[i] = 13 :
-        (rank[i].toLowerCase() === 'a') ? rank[i] = 14 : false;
-};
-// console.log('----Rank----')
-// console.log(rank);
-
-const rankHand = getValues(groupedHand, rank);
-// console.log('----RankHand----')
-// console.log(rankHand);
-
-const suitHand = getValues(groupedHand, suit);
-// console.log('----SuitHand----');
-// console.log(suitHand);
-
-const sorted = rank.sort((a, b) => a - b);
 const isSorted = [];
-//console.log(sorted);
 for (let i = 0; i < sorted.length - 1; i++) {
   if (sorted[i] - sorted[i + 1] === -1) {
     isSorted[i] = -1;
-    //console.log(isSorted)
   } else break;
-}
+};
 
-const highCard = (rank) => {
+const highCard = (rankArr) => {
   let highestCard = 0;
-  for (let elem of rank) {
-    highestCard < elem ? (highestCard = Number(elem)) : highestCard;
+  for (let elem of rankArr) {
+    highestCard < elem ? highestCard = Number(elem) : highestCard;
   }
   return highestCard;
 };
@@ -95,107 +64,126 @@ const PlayerHand = (hand, highCard) => ({
   highCard,
 });
 
-const isRoyalFlush = () => {
-  strength = highCard(rank);
-  return (suitHand.find(num => num === 5) && isSorted.every(num => num === -1) && isSorted.length === 4 && strength === 14) ? true : false;
+const isRoyalFlush = (hand) => { //(suitHand, isSorted, strength)
+  const rankArr = lettersToNumber(rank, hand);
+  const suitHand = getValues(groupedHand, suit(hand));
+  const sort = sorted(rankArr);
+  const isSorted = [];
+  for (let i = 0; i < sort.length - 1; i++) {
+    if (sort[i] - sort[i + 1] === -1) {
+      isSorted[i] = -1;
+    } else break;
+  };
+  const strength = highCard(rankArr);
+  return (suitHand.find(num => num === 5) && isSorted.every(num => num === -1) && isSorted.length === 4 && strength === 14);
 };
 
-const isStraightFlush = () => {
-  return (suitHand.find(num => num === 5) && isSorted.every(num => num === -1) && isSorted.length === 4) ? true : false;
+const isStraightFlush = (hand) => { //(suitHand, rank, isSorted)
+  const rankArr = lettersToNumber(rank, hand);
+  const suitHand = getValues(groupedHand, suit(hand));
+  const sort = sorted(rankArr);
+  const isSorted = [];
+  for (let i = 0; i < sort.length - 1; i++) {
+    if (sort[i] - sort[i + 1] === -1) {
+      isSorted[i] = -1;
+    } else break;
+  };
+  return (suitHand.find(num => num === 5) && isSorted.every(num => num === -1) && isSorted.length === 4) || (suitHand.find(num => num === 5) && rankArr.find(num => num === '5') && rankArr.find(num => num === '4') && rankArr.find(num => num === '3') && rankArr.find(num => num === '2') && rankArr.find(num => num === 14));
 };
 
-const isFourOfaKind = () => {
-  return (rankHand.find(num => num === 4)) ? true : false;
-}
+const isFourOfaKind = (hand) => { //(rankHand)
+  const rankHand = getValues(groupedHand, rank(hand));
+  return (rankHand.find(num => num === 4));
+};
 
-const isFullHouse = () => {
-  return (rankHand.find(num => num === 3) && rankHand.find(num => num === 2)) ? true : false;
-}
+const isFullHouse = (hand) => { //(rankHand)
+  const rankHand = getValues(groupedHand, rank(hand));
+  return (rankHand.find(num => num === 3) && rankHand.find(num => num === 2) && rankHand.length === 2);
+};
 
-const isFlush = () => {
-  return (suitHand.find(num => num === 5)) ? true : false;
-}
+const isFlush = (hand) => { //(suitHand)
+  const suitHand = getValues(groupedHand, suit(hand));
+  return (suitHand.find(num => num === 5));
+};
 
-const isStraight = () => {
-  return (isSorted.every(num => num === -1) && isSorted.length === 4) ? true : false;
-}
+const isStraight = (hand) => { //(isSorted, rank)
+  const rankArr = lettersToNumber(rank, hand);
+  const sort = sorted(rankArr);
+  const isSorted = [];
+  for (let i = 0; i < sort.length - 1; i++) {
+    if (sort[i] - sort[i + 1] === -1) {
+      isSorted[i] = -1;
+    } else break;
+  };
+  return (isSorted.every(num => num === -1) && isSorted.length === 4) || (rankArr.find(num => num === '5') && rankArr.find(num => num === '4') && rankArr.find(num => num === '3') && rankArr.find(num => num === '2') && rankArr.find(num => num === 14));
+};
 
-const isTreeOfaKind = () => {
-  return (rankHand.find(num => num === 3)) ? true : false;
-}
+const isThreeOfaKind = (hand) => { //(rankHand)
+  const rankHand = getValues(groupedHand, rank(hand));
+  return (rankHand.find(num => num === 3) && rankHand.length === 3);
+};
 
-const isTwoPairs = () => {
-  return (rankHand.find(num => num === 2) && rankHand.length === 3) ? true : false;
-}
+const isTwoPair = (hand) => { //(rankHand)
+  const rankHand = getValues(groupedHand, rank(hand));
+  return (rankHand.find(num => num === 2) && rankHand.length === 3);
+};
 
-const isOnePair = () => {
-  return (rankHand.find(num => num === 2)) ? true : false;
-}
+const isOnePair = (hand) => { //(rankHand)
+  const rankHand = getValues(groupedHand, rank(hand));
+  return (rankHand.find(num => num === 2));
+};
 
-const isHighCard = () => {
-  return rankHand.find(num => num === 1) ? true : false;
-}
+const isHighCard = (hand) => { //(rankHand)
+  const rankHand = getValues(groupedHand, rank(hand));
+  return rankHand.find(num => num === 1);
+};
 
 
 const evaluate = (hand) => {
-
-  let strength = highCard(rank);
-  if (isRoyalFlush(suitHand, isSorted, strength)) {
-    console.log('Your hand is Royal Flush');
+  const rankArr = lettersToNumber(rank, hand);
+  const strength = highCard(rankArr)
+  if (isRoyalFlush(hand)) {
     const playerHand = PlayerHand(handType.ROYAL_FLUSH, strength);
     return playerHand;
-  }
-  if (isStraightFlush(suitHand, isSorted)) {
-    console.log('Your hand is Straight Flush');
+  };
+  if (isStraightFlush(hand)) {
     const playerHand = PlayerHand(handType.STRAIGHT_FLUSH, strength);
     return playerHand;
-  }
-  if (isFourOfaKind(rankHand)) {
-    console.log('Your hand is Four of A Kind')
+  };
+  if (isFourOfaKind(hand)) {
     const playerHand = PlayerHand(handType.FOUR_OF_A_KIND, strength);
     return playerHand;
-  }
-  if (isFullHouse(rankHand)) {
-    console.log('Your hand is Full House');
-    const playerHand = PlayerHand(handType.FOUL_HOUSE, strength);
+  };
+  if (isFullHouse(hand)) {
+    const playerHand = PlayerHand(handType.FULL_HOUSE, strength);
     return playerHand;
-  }
-  if (isFlush(suitHand)) {
-    console.log('Your hand is Flush');
+  };
+  if (isFlush(hand)) {
     const playerHand = PlayerHand(handType.FLUSH, strength)
     return playerHand;
-  }
-  if (isStraight(isSorted)) {
-    console.log('Your hand is Straight');
+  };
+  if (isStraight(hand)) {
     const playerHand = PlayerHand(handType.STRAIGHT, strength);
     return playerHand;
-  }
-  if (isTreeOfaKind(rankHand)) {
-    console.log('Your hand is Three of A Kind');
+  };
+  if (isThreeOfaKind(hand)) {
     const playerHand = PlayerHand(handType.THREE_OF_A_KIND, strength);
     return playerHand;
-  }
-  if (isTwoPairs(rankHand)) {
-    console.log('Your hand is Two Pairs');
-    const playerHand = PlayerHand(handType.TWO_PAIRS, strength);
+  };
+  if (isTwoPair(hand)) {
+    const playerHand = PlayerHand(handType.TWO_PAIR, strength);
     return playerHand;
-  }
-  if (isOnePair(rankHand)) {
-    console.log('Your hand is One Pair');
+  };
+  if (isOnePair(hand)) {
     const playerHand = PlayerHand(handType.ONE_PAIR, strength);
     return playerHand;
   }
-  if (isHighCard(rankHand)) {
-    console.log('Your hand is High Card');
+  if (isHighCard(hand)) {
     const playerHand = PlayerHand(handType.HIGH_CARD, strength);
     return playerHand;
   }
 };
 
-console.log(evaluate(hand));
-
-const playerHand = evaluate(hand);
-console.log(playerHand);
 
 module.exports = {
   evaluate,
