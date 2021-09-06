@@ -45,17 +45,21 @@ const groupedHand = (hand) => hand.reduce(
 const straight = (hand) => {
   const onlyNumbers = lettersToNumber(hand);
   const sortRankArr = onlyNumbers.sort((a, b) => a - b);
-  const lastMinusFirst = sortRankArr[4] - sortRankArr[0];
-  return lastMinusFirst;
+  const truthComparison = sortRankArr.reduce(
+    (acc, cv) => {
+      if (acc - cv === -1) {
+        return cv;
+      } else return false;
+    });
+  return truthComparison;
 };
 
-const highCard = (rankArr) => {
-  let highestCard = 0;
-  for (let elem of rankArr) {
-    highestCard < elem ? highestCard = Number(elem) : highestCard;
-  }
-  return highestCard;
-};
+const highCard = (rankArr) => rankArr.reduce(
+  (acc, rank) => {
+    let highestCard = acc;
+    highestCard < rank ? highestCard = rank : highestCard;
+    return Number(highestCard);
+  });
 
 const PlayerHand = (hand, highCard) => ({
   hand,
@@ -67,7 +71,7 @@ const isRoyalFlush = (hand) => {
   const suitHand = getValues(suit(hand));
   const isStraight = straight(hand);
   const strength = highCard(rankArr);
-  return (suitHand.find(num => num === 5) && isStraight === 4 && strength === 14);
+  return (suitHand.find(num => num === 5) && isStraight && strength === 14);
 };
 
 const isStraightFlush = (hand) => {
@@ -77,16 +81,6 @@ const isStraightFlush = (hand) => {
   return (suitHand.find(num => num === 5) && isStraight === 4 || (suitHand.find(num => num === 5) && rankArr.find(num => num === '5') && rankArr.find(num => num === '4') && rankArr.find(num => num === '3') && rankArr.find(num => num === '2') && rankArr.find(num => num === 14)));
 };
 
-const isFourOfaKind = (hand) => {
-  const rankHand = getValues(rank(hand));
-  return (rankHand.find(num => num === 4));
-};
-
-const isFullHouse = (hand) => {
-  const rankHand = getValues(rank(hand));
-  return (rankHand.find(num => num === 3) && rankHand.find(num => num === 2) && rankHand.length === 2);
-};
-
 const isFlush = (hand) => {
   const suitHand = getValues(suit(hand));
   return (suitHand.find(num => num === 5));
@@ -94,27 +88,37 @@ const isFlush = (hand) => {
 
 const isStraight = (hand) => {
   const isStraight = straight(hand);
-  return (isStraight === 4);
+  return (isStraight);
 };
 
-const isThreeOfaKind = (hand) => {
+const fullOfAKindAndPairs = (hand) => {
+  const rankArr = lettersToNumber(hand);
+  const strength = highCard(rankArr);
   const rankHand = getValues(rank(hand));
-  return (rankHand.find(num => num === 3) && rankHand.length === 3);
-};
-
-const isTwoPair = (hand) => {
-  const rankHand = getValues(rank(hand));
-  return (rankHand.find(num => num === 2) && rankHand.length === 3);
-};
-
-const isOnePair = (hand) => {
-  const rankHand = getValues(rank(hand));
-  return (rankHand.find(num => num === 2));
-};
-
-const isHighCard = (hand) => {
-  const rankHand = getValues(rank(hand));
-  return rankHand.find(num => num === 1);
+  if (rankHand.find(num => num === 3) && rankHand.find(num => num === 2) && rankHand.length === 2) {
+    const playerHand = PlayerHand(handType.FULL_HOUSE, strength);
+    return playerHand
+  }
+  if (rankHand.find(num => num === 4)) {
+    const playerHand = PlayerHand(handType.FOUR_OF_A_KIND, strength);
+    return playerHand
+  };
+  if (rankHand.find(num => num === 3) && rankHand.length === 3) {
+    const playerHand = PlayerHand(handType.THREE_OF_A_KIND, strength);
+    return playerHand;
+  }
+  if (rankHand.find(num => num === 2) && rankHand.length === 3) {
+    const playerHand = PlayerHand(handType.TWO_PAIR, strength);
+    return playerHand;
+  }
+  if (rankHand.find(num => num === 2)) {
+    const playerHand = PlayerHand(handType.ONE_PAIR, strength);
+    return playerHand;
+  };
+  if (rankHand.find(num => num === 1)) {
+    const playerHand = PlayerHand(handType.HIGH_CARD, strength);
+    return playerHand;
+  }
 };
 
 const evaluate = (hand) => {
@@ -128,14 +132,6 @@ const evaluate = (hand) => {
     const playerHand = PlayerHand(handType.STRAIGHT_FLUSH, strength);
     return playerHand;
   };
-  if (isFourOfaKind(hand)) {
-    const playerHand = PlayerHand(handType.FOUR_OF_A_KIND, strength);
-    return playerHand;
-  };
-  if (isFullHouse(hand)) {
-    const playerHand = PlayerHand(handType.FULL_HOUSE, strength);
-    return playerHand;
-  };
   if (isFlush(hand)) {
     const playerHand = PlayerHand(handType.FLUSH, strength)
     return playerHand;
@@ -144,22 +140,7 @@ const evaluate = (hand) => {
     const playerHand = PlayerHand(handType.STRAIGHT, strength);
     return playerHand;
   };
-  if (isThreeOfaKind(hand)) {
-    const playerHand = PlayerHand(handType.THREE_OF_A_KIND, strength);
-    return playerHand;
-  };
-  if (isTwoPair(hand)) {
-    const playerHand = PlayerHand(handType.TWO_PAIR, strength);
-    return playerHand;
-  };
-  if (isOnePair(hand)) {
-    const playerHand = PlayerHand(handType.ONE_PAIR, strength);
-    return playerHand;
-  };
-  if (isHighCard(hand)) {
-    const playerHand = PlayerHand(handType.HIGH_CARD, strength);
-    return playerHand;
-  };
+  return fullOfAKindAndPairs(hand);
 };
 
 module.exports = {
