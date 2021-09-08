@@ -42,23 +42,24 @@ const groupedHand = (hand) => hand.reduce(
   {},
 );
 
-const straight = (hand) => {
+const checkIfStraight = (hand) => {
   const onlyNumbers = lettersToNumber(hand);
   const sortRankArr = onlyNumbers.sort((a, b) => a - b);
-  const truthComparison = sortRankArr.reduce(
+
+  const areSortRankArrElementsConsecutive = sortRankArr.reduce(
     (acc, cv) => {
       if (acc - cv === -1) {
         return cv;
-      } else return false;
+      }
+      return false;
     });
-  return truthComparison;
+  return areSortRankArrElementsConsecutive;
 };
 
 const highCard = (rankArr) => rankArr.reduce(
-  (acc, rank) => {
-    let highestCard = acc;
-    highestCard < rank ? highestCard = rank : highestCard;
-    return Number(highestCard);
+  (highestCardSoFar, rank) => {
+    highestCardSoFar < rank ? highestCardSoFar = rank : highestCardSoFar;
+    return Number(highestCardSoFar);
   });
 
 const PlayerHand = (hand, highCard) => ({
@@ -69,7 +70,7 @@ const PlayerHand = (hand, highCard) => ({
 const isRoyalFlush = (hand) => {
   const rankArr = lettersToNumber(hand);
   const suitHand = getValues(suit(hand));
-  const isStraight = straight(hand);
+  const isStraight = checkIfStraight(hand);
   const strength = highCard(rankArr);
   return (suitHand.find(num => num === 5) && isStraight && strength === 14);
 };
@@ -77,7 +78,7 @@ const isRoyalFlush = (hand) => {
 const isStraightFlush = (hand) => {
   const rankArr = lettersToNumber(hand);
   const suitHand = getValues(suit(hand));
-  const isStraight = straight(hand);
+  const isStraight = checkIfStraight(hand);
   return (suitHand.find(num => num === 5) && isStraight === 4 || (suitHand.find(num => num === 5) && rankArr.find(num => num === '5') && rankArr.find(num => num === '4') && rankArr.find(num => num === '3') && rankArr.find(num => num === '2') && rankArr.find(num => num === 14)));
 };
 
@@ -87,7 +88,7 @@ const isFlush = (hand) => {
 };
 
 const isStraight = (hand) => {
-  const isStraight = straight(hand);
+  const isStraight = checkIfStraight(hand);
   return (isStraight);
 };
 
